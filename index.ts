@@ -55,3 +55,7 @@ app.post("/email", async (req, res) => {
       res.status(500).json({ message: "Error sending email" });
     });
 });
+
+// Start the express server
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
