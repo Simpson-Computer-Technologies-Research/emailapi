@@ -26,19 +26,32 @@ const transporter = nodemailer.createTransport({
  * @access Public
  */
 app.post("/email", async (req, res) => {
-  const { from, email, subject, message } = req.body;
+  // Destructure the request body
+  const { subject, message } = req.body;
+  const from = req.body.from as {
+    name: string;
+    email: string;
+    phone: string;
+  };
 
-  try {
-    const info = await transporter.sendMail({
-      from: from,
+  // Validate the request body
+  if (!subject || !message || !from.name || !from.email) {
+    return res.status(400).json({ message: "Invalid request body" });
+  }
+
+  // Send the email
+  transporter
+    .sendMail({
+      from: from.name,
       to: MailVariables.email,
       subject: subject,
       text: message,
+    })
+    .then(() => {
+      res.status(200).json({ message: "Email sent successfully" });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({ message: "Error sending email" });
     });
-
-    res.status(200).json({ message: "Email sent successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error sending email" });
-  }
 });
